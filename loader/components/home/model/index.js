@@ -53,6 +53,10 @@ export default {
       },
       type: Object,
     },
+    viewMode: {
+      default: "grid",
+      type: String,
+    },
   },
   watch: {
     allList: {
@@ -147,6 +151,40 @@ export default {
     modifyCover(coverSrc) {
       this.selectedModel.cover = coverSrc;
     },
+    // Delete model
+    deleteModel(model) {
+      const self = this;
+      fetch("/api/cs/delete_model", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mtype: model.mtype, mname: model.name }),
+      })
+        .then(async (resp) => {
+          if (resp.status === 200) {
+            const json = await resp.json();
+            if (json.deleted) {
+              // 从列表中移除
+              const idx = self.curList.indexOf(model);
+              if (idx > -1) {
+                self.curList.splice(idx, 1);
+              }
+              // 从 allList 中移除
+              const allIdx = self.allList.indexOf(model);
+              if (allIdx > -1) {
+                self.allList.splice(allIdx, 1);
+              }
+              // 重新过滤
+              self.filterList(self.searchParameter);
+              self.$message({ type: "success", message: "删除成功" });
+            } else {
+              self.$message({ type: "error", message: "删除失败: " + json.msg });
+            }
+          }
+        })
+        .catch((err) => {
+          self.$message({ type: "error", message: "删除失败: " + err });
+        });
+    },
     // Change selected items
     changeSelectedModel(model) {
       this.selectedModel = model;
@@ -227,8 +265,8 @@ export default {
   },
   template: `
             <div class="model_display">
-                <ModelList v-if="curList.length > 0" :curList="curList" :selected-model="selectedModel" :column="column" @changeSelectedModel="changeSelectedModel" @useModel="useModel" />
-                <ModelDetail v-if="curList.length > 0" :model="selectedModel" @modifyCover="modifyCover" @changeLevel="changeLevel" @modifyName="modifyName" @addTag="addTag" @deleteTag="deleteTag"  @useModel="useModel" />
+                <ModelList v-if="curList.length > 0" :curList="curList" :selected-model="selectedModel" :column="column" :view-mode="viewMode" @changeSelectedModel="changeSelectedModel" @useModel="useModel" />
+                <ModelDetail v-if="curList.length > 0" :model="selectedModel" @modifyCover="modifyCover" @changeLevel="changeLevel" @modifyName="modifyName" @addTag="addTag" @deleteTag="deleteTag" @useModel="useModel" @deleteModel="deleteModel" />
                 <div v-if="curList.length === 0" class="empty">
                   <p v-if="searchParameter.key">{{$t('home.searchValue')}}: {{searchParameter.key}}</p>
                   {{$t('noResult')}}

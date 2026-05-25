@@ -59,6 +59,26 @@
 .head .left .space {
   margin: 0 0.5vw;
 }
+.head .left .view_toggle {
+  cursor: pointer;
+  padding: 0.5vw 0.9vw;
+  background: #383838;
+  border-radius: 0.4vw;
+  transition: background 0.3s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 0.5vw;
+}
+.head .left .view_toggle em {
+  font-size: 1rem;
+}
+.head .left .view_toggle:hover {
+  background: #2a82e4;
+}
+.head .left .view_toggle.active {
+  background: #2a82e4;
+}
 .head .left .block {
   width: 0.2vw;
   height: 1.5vw;

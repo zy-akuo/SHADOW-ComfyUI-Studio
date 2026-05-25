@@ -81,7 +81,7 @@ function popUpReg() {
   function processNodeWidgets(node, pos, event, active_widget) {
     var shortcut = window.CSvm?.$store.state.config.shortcut || "click";
     if (shouldPopUp(event, shortcut)) {
-      if (!node.widgets || !node.widgets.length || (!this.allow_interaction && !node.flags.allow_interaction)) {
+      if (!node || !node.widgets || !node.widgets.length || (!this.allow_interaction && !node.flags.allow_interaction)) {
         return null;
       }
 
@@ -137,7 +137,7 @@ function popUpReg() {
     var node = this.graph.getNodeOnPos(event.canvasX, event.canvasY, this.visible_nodes);
     var shortcut = window.CSvm?.$store.state.config.shortcut || "click";
     if (shouldPopUp(event, shortcut)) {
-      if (!node.widgets || !node.widgets.length || (!this.allow_interaction && !node.flags.allow_interaction)) {
+      if (!node || !node.widgets || !node.widgets.length || (!this.allow_interaction && !node.flags.allow_interaction)) {
         return fff ? fff.call(this, event) : false;
       }
       // 仅枚举

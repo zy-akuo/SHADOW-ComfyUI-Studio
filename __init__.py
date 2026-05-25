@@ -468,6 +468,31 @@ async def fetch_config(request: web.Request):
     return web.Response(status=200, body=json_data)
 
 
+@server.PromptServer.instance.routes.post("/cs/refresh_model_list")
+async def refresh_model_list(request: web.Request):
+    """
+    刷新模型列表：直接扫描磁盘获取最新模型文件列表
+    前端传入 mtype（如 checkpoints, loras, upscale_models 等）
+    返回最新的模型文件名列表
+    """
+    body = await request.read()
+    body = json.loads(body)
+    mtype = body.get("mtype")
+    if not mtype:
+        sys.stderr.write("ComfyUI-Studio Refresh model list: model type is empty\n")
+        sys.stderr.flush()
+        return web.Response(status=200, body=json.dumps({"models": []}))
+    
+    try:
+        # 直接扫描磁盘获取最新文件列表
+        model_list = folder_paths.get_filename_list(mtype)
+        return web.Response(status=200, body=json.dumps({"models": model_list}))
+    except Exception as e:
+        sys.stderr.write(f"ComfyUI-Studio Refresh model list error: {e}\n")
+        sys.stderr.flush()
+        return web.Response(status=200, body=json.dumps({"models": [], "error": str(e)}))
+
+
 @server.PromptServer.instance.routes.get("/cs/fetch_image")
 async def fetch_image(request: web.Request):
     # 调用方式 http://127.0.0.1:8188/cs/fetch_image?code=xxxx.png
@@ -690,6 +715,61 @@ async def remove_note(request: web.Request):
             CFG_MANAGER.dump_config()
             ret_json["removed"] = True
         sys.stdout.write(f"ComfyUI-Studio Remove note: [{note_name}] success\n")
+    if err_info:
+        sys.stderr.write(err_info)
+        sys.stderr.flush()
+    return web.Response(status=200, body=json.dumps(ret_json))
+
+
+@server.PromptServer.instance.routes.post("/api/cs/delete_model")
+async def delete_model(request: web.Request):
+    """
+    根据传入的 mtype mname 删除模型文件及其关联数据（缩略图、配置、工作流目录）
+    """
+    body = await request.read()
+    body = json.loads(body)
+    mtype = body.get("mtype")
+    mname = body.get("mname")
+    err_info = ""
+    ret_json = {"deleted": False, "msg": ""}
+    if not mtype:
+        err_info = "ComfyUI-Studio Delete model: model type is empty\n"
+    elif not mname:
+        err_info = "ComfyUI-Studio Delete model: model name is empty\n"
+    else:
+        try:
+            model_path = ModelManager.find_model(mtype, mname)
+            if not model_path.exists():
+                err_info = f"ComfyUI-Studio Delete model: model [{mname}] not found\n"
+            else:
+                # 删除模型文件
+                model_path.unlink()
+                sys.stdout.write(f"ComfyUI-Studio Delete model: [{mname}] deleted\n")
+                # 删除缩略图
+                try:
+                    ModelManager.remove_thumbnails(mtype, mname)
+                except Exception:
+                    pass
+                # 删除配置
+                try:
+                    old_model_map = CFG_MANAGER.get_detail(mtype)
+                    if mname in old_model_map:
+                        old_model_map.pop(mname)
+                        CFG_MANAGER.dump_config()
+                except Exception:
+                    pass
+                # 删除工作流目录
+                try:
+                    wp = WK_PATH.joinpath(mtype, mname)
+                    if wp.exists():
+                        import shutil
+                        shutil.rmtree(wp.as_posix())
+                except Exception:
+                    pass
+                ret_json["deleted"] = True
+        except Exception as e:
+            err_info = f"ComfyUI-Studio Delete model: {e}\n"
+            ret_json["msg"] = str(e)
     if err_info:
         sys.stderr.write(err_info)
         sys.stderr.flush()

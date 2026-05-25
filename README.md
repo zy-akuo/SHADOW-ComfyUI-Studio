@@ -1,4 +1,4 @@
-C# AIGODLIKE-ComfyUI-Studio
+# SHADOW-Comfyui-Studio
 Improve the interactive experience of using ComfyUI, such as making the loading of ComfyUI models more intuitive and making it easier to create model thumbnails
 
 ![image](https://github.com/user-attachments/assets/44ec8f54-bd34-420b-9b3c-b1dedffa8b81)
@@ -13,12 +13,12 @@ Improve the interactive experience of using ComfyUI, such as making the loading 
 |Model matching workflow|Match the matching workflow for the model and support search, add, load, delete, and copy to the clipboard|
 |Multilingual|Supports English, Simplified and Traditional Chinese|
 ## How to install(Only on WINDOWS 10\11)
-AIGODLIKE-ComfyUI-STUDIO is equivalent to a custom node, you can use any method you like, just put it in folder custom_nodes
+SHADOW-Comfyui-Studio is equivalent to a custom node, you can use any method you like, just put it in folder custom_nodes
 
 Then run:
 ```sh
 cd ComfyUI/custom_nodes
-git clone https://github.com/AIGODLIKE/AIGODLIKE-ComfyUI-Studio.git
+# Clone or copy the plugin folder here
 ```
 ## How to use it
 Find a loader, **left click** on model switch to pop up ComfyUI Studio Manager. If you still need to use the original model list, use **Shift+left** click on model switch to pop up the original model list

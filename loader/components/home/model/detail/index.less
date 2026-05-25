@@ -7,21 +7,21 @@
   }
 }
 .model_detail {
-  width: 17vw;
+  width: 14vw;
   flex-shrink: 0;
   height: 100%;
   border: 1px solid #3d3d3d;
   background: #262626;
   border-radius: 0.5vw;
-  padding: 0.52vw 0.52vw 1vw 0.52vw;
+  padding: 0.4vw 0.4vw 0.8vw 0.4vw;
   display: flex;
   flex-direction: column;
-  margin-left: 0.55vw;
+  margin-left: 0.4vw;
   .img_container {
     position: relative;
     width: 100%;
-    height: 8.7vw;
-    border-radius: 0.5vw;
+    height: 12.2vw;
+    border-radius: 0.4vw;
     overflow: hidden;
     img {
       width: 100%;
@@ -68,25 +68,47 @@
       color: #bfbfbf;
     }
   }
-  .model_name {
+  .model_name_wrap {
     width: 100%;
-    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin: 0.5vw 0;
     transition: 0.2s;
     min-height: 2.1vw;
-    min-width: 0;
-    display: flex;
-    align-items: center;
     padding-left: 0.5vw;
-    cursor: pointer;
-    font-weight: bold;
-    &:hover {
-      color: #bfbfbf;
-    }
-    p {
+    .model_name_text {
+      flex: 1;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      cursor: pointer;
+      font-weight: bold;
+      color: #ffffff;
+      transition: color 0.2s;
+      &:hover {
+        color: #bfbfbf;
+      }
+    }
+    .edit_icon {
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 1.8vw;
+      height: 1.8vw;
+      border-radius: 0.3vw;
+      color: #808080;
+      flex-shrink: 0;
+      margin-right: 0.5vw;
+      transition: all 0.2s;
+      em {
+        font-size: 0.8rem;
+      }
+      &:hover {
+        color: #2a82e4;
+        background: #383838;
+      }
     }
   }
   .name_input {
@@ -178,6 +200,21 @@
     font-size: 1rem;
     &:hover {
       box-shadow: 0 0 5px 2px #2a82e4;
+    }
+  }
+  .delete_button {
+    width: 100%;
+    height: 2.1vw;
+    background: #d43030;
+    border-radius: 0.3vw;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 0.3vw;
+    transition: background 0.3s;
+    &:hover {
+      background: #ff4444;
+      box-shadow: 0 0 5px 2px #d43030;
     }
   }
 }

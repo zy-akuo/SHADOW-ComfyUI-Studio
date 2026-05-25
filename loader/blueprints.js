@@ -429,6 +429,53 @@ class BluePrints {
     }
     return l;
   }
+  CSrefreshModelLists() {
+    let mtype = this.CSgetModelWidgetType();
+    if (!mtype) return [];
+    
+    // 清除前端缓存
+    delete ModelConfig.config_dirty[mtype];
+    delete ModelConfig.config[mtype];
+    
+    // 先通过新接口获取最新模型列表
+    let freshModelList = this.CSgetFreshModelList(mtype);
+    if (freshModelList && freshModelList.length > 0) {
+      // 更新 widget 的 options.values 为最新列表
+      let adapter = this.CSgetAdapter();
+      // 查找对应 widget 的名称
+      let widgetName = Object.keys({
+        ckpt_name: 1, vae_name: 1, clip_name: 1, gligen_name: 1,
+        control_net_name: 1, lora_name: 1, style_model_name: 1,
+        hypernetwork_name: 1, unet_name: 1, model_name: 1
+      }).find(name => adapter.type.includes(name.replace("_name", ""))) || "ckpt_name";
+      
+      let widgets = this.widgets.filter(w => w.name === widgetName);
+      if (widgets.length > 0) {
+        widgets[0].options = widgets[0].options || {};
+        widgets[0].options.values = freshModelList;
+      }
+    }
+    
+    // 重新获取模型列表（现在 widget 数据已是最新的）
+    return this.CSgetModelLists();
+  }
+  CSgetFreshModelList(mtype) {
+    let result = [];
+    let request = new XMLHttpRequest();
+    request.open("post", "/cs/refresh_model_list", false);
+    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+    request.onload = function () {
+      if (request.status === 200) {
+        let resp = JSON.parse(request.responseText);
+        if (resp.models) {
+          result = resp.models;
+        }
+      }
+    };
+    let body = { mtype: mtype };
+    request.send(JSON.stringify(body));
+    return result;
+  }
 }
 
 export default BluePrints;

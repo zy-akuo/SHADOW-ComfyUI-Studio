@@ -23,6 +23,7 @@ export default {
       isLoading: true,
       column: 0,
       columnIndex: 0,
+      viewMode: "grid",
     };
   },
   computed: {
@@ -47,6 +48,7 @@ export default {
       this.columnIndex = 3;
     }
     this.column = this.$t("home.head.sizeList")[this.columnIndex].value;
+    this.viewMode = localStorage.getItem("viewMode") || "grid";
     this.$i18n.locale = this.$store.state.config.language;
     this.$store.commit("config/updateShortcut", this.$store.state.config.shortcut);
     this.$store.commit("config/updateWindowing", this.$store.state.config.windowing);
@@ -57,6 +59,10 @@ export default {
     changeColumn(value) {
       this.column = value;
     },
+    // Change view mode (grid/list)
+    changeViewMode(mode) {
+      this.viewMode = mode;
+    },
     // Change filtering criteria
     changeSearchParameter(value) {
       this.searchParameter = {
@@ -64,12 +70,25 @@ export default {
         ...value,
       };
     },
+    // Refresh model list
+    refreshModels() {
+      try {
+        const newList = this.node?.CSrefreshModelLists();
+        this.allList = newList || [];
+        // 刷新成功，显示成功提示
+        this.$message(this.$t("home.head.refreshSuccess"));
+      } catch (e) {
+        console.error("Refresh models failed:", e);
+        // 刷新失败，显示失败提示
+        this.$message(this.$t("home.head.refreshFail"));
+      }
+    },
   },
   template: `<div v-if="!isLoading" class="home_page">
                <div class="content">
-                <Head :column-index="columnIndex" @changeSearchParameter="changeSearchParameter" @changeColumn="changeColumn" :all-list="allList" />
+                <Head :column-index="columnIndex" :view-mode="viewMode" @changeSearchParameter="changeSearchParameter" @changeColumn="changeColumn" @changeViewMode="changeViewMode" @refreshModels="refreshModels" :all-list="allList" />
                 <Classification @changeSearchParameter="changeSearchParameter" :all-list="allList" />
-                <Model :column="column" :all-list="allList" :selected-widget="selectedWidget" :search-parameter="searchParameter" />
+                <Model :column="column" :all-list="allList" :selected-widget="selectedWidget" :search-parameter="searchParameter" :view-mode="viewMode" />
               </div>
               <Foot :all-list="allList" v-show="rendering"/>
              </div>`,

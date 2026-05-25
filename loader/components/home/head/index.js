@@ -27,11 +27,16 @@ export default {
       },
       type: Array,
     },
+    viewMode: {
+      default: "grid",
+      type: String,
+    },
   },
   components: { HoverMenu: hoverMenu },
   data() {
     return {
       value: "",
+      refreshing: false,
       search: {
         key: "",
         sort: "",
@@ -96,6 +101,12 @@ export default {
         refuse: () => {},
       });
     },
+    // Toggle between grid and list view
+    toggleView() {
+      const newMode = this.viewMode === "grid" ? "list" : "grid";
+      localStorage.setItem("viewMode", newMode);
+      this.$emit("changeViewMode", newMode);
+    },
     // Close the entire page
     closePage() {
       let renderer = this.renderer;
@@ -118,6 +129,16 @@ export default {
         },
       });
     },
+    // Refresh model list
+    refreshModels() {
+      if (this.refreshing) return;
+      this.refreshing = true;
+      this.$emit("refreshModels");
+      // 等待刷新完成并显示结果提示
+      setTimeout(() => {
+        this.refreshing = false;
+      }, 1500);
+    },
   },
   template: `<div class="head">
                 <div class="left">
@@ -129,7 +150,14 @@ export default {
                     <HoverMenu icon="icon-exchange" :list="$t('home.head.categoryList')" @changeValue= "changeSort" />
                     <HoverMenu icon="icon-medal" class="space" :list="$t('home.head.rateList')" @changeValue= "changeLevel" />
                     <HoverMenu icon="" :value="columnIndex" :list="$t('home.head.sizeList')" @changeValue= "changeColumn" />
+                    <div class="view_toggle" :class="{'active': viewMode === 'list'}" @click="toggleView" :title="viewMode === 'grid' ? $t('home.head.switchToList') : $t('home.head.switchToGrid')">
+                        <em class="iconfont icon-cube" v-if="viewMode === 'grid'"></em>
+                        <em class="iconfont icon-home" v-else></em>
+                    </div>
                     <div class="block"></div>
+                    <button class="refresh_button" @click="refreshModels" :disabled="refreshing" :class="{'spinning': refreshing}" :title="$t('home.head.refreshText')">
+                        {{$t('home.head.refreshText')}}
+                    </button>
                     <button class="render_button" @click="rendering">{{$t("home.head.renderText")}}</button>
                 </div>
                 <div class="right">

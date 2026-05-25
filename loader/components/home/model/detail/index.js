@@ -107,6 +107,18 @@ export default {
     useModel() {
       this.$emit("useModel", this.model);
     },
+    // Click to delete model
+    deleteModel() {
+      this.$confirmBox({
+        describe: this.$t("home.modelDetail.deleteConfirm"),
+        refuseText: this.$t("confirmBox.refuseText"),
+        acceptText: this.$t("confirmBox.acceptText"),
+        accept: () => {
+          this.$emit("deleteModel", this.model);
+        },
+        refuse: () => {},
+      });
+    },
     // Rendering an image
     renderPic() {
       if (this.model) {
@@ -160,7 +172,10 @@ export default {
                   <input type="file" id="file_input" accept="image/*" @change="inputCover($event)" />
                 </div>
               </div>
-              <div v-if="isReadonly" class="model_name" @click="editName" title="点击修改"><p>{{model.name}}</p></div>
+              <div v-if="isReadonly" class="model_name_wrap">
+                <p class="model_name_text" :title="model.name">{{model.name}}</p>
+                <span class="edit_icon" @click="editName" title="点击编辑名称"><em class="iconfont icon-edit"></em></span>
+              </div>
               <div v-else class="name_input">
                 <input ref="nameInput" type="value" :value="model.name" @blur="blurInput"  @keydown="nameInputKeyDown"/>
                 <span @mousedown="changeName($event)"><em class="iconfont icon-edit"></em></span> 
@@ -175,6 +190,7 @@ export default {
               <Note v-if="menuIndex === 1" :model="model" />
               <BasicInf v-if="menuIndex === 2"  @addTag="addTag" @deleteTag="deleteTag" :model="model" />
               <button class="use_button" @click="useModel">{{$t("home.modelDetail.useButtonText")}}</button>
+              <button class="delete_button" @click="deleteModel">{{$t("home.modelDetail.deleteButtonText")}}</button>
           </div>
   `,
 };
