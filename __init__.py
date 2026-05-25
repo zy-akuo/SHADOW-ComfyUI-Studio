@@ -56,7 +56,7 @@ class ConfigManager:
         try:
             config: dict[str, list[dict]] = read_json(self.path)
         except Exception as e:
-            sys.stderr.write(f"ComfyUI-Studio Fetch config: {e}\n")
+            sys.stderr.write(f"SHADOW-ComfyUI-Studio Fetch config: {e}\n")
             sys.stderr.flush()
             config = {}
         return config
@@ -69,7 +69,7 @@ class ConfigManager:
         try:
             self.path.write_text(json.dumps(config, indent=4, ensure_ascii=False), encoding="utf8")
         except Exception as e:
-            sys.stderr.write(f"ComfyUI-Studio Fetch config: {e}\n")
+            sys.stderr.write(f"SHADOW-ComfyUI-Studio Fetch config: {e}\n")
             sys.stderr.flush()
 
 
@@ -315,13 +315,13 @@ async def update_config(request: web.Request):
             sys.stderr.write(f"Update Config: data is not dict {data}\n")
             return web.Response(status=200, body=json.dumps(ret_json))
     except Exception as e:
-        sys.stderr.write(f"ComfyUI-Studio Update config: {e}\n")
+        sys.stderr.write(f"SHADOW-ComfyUI-Studio Update config: {e}\n")
         ret_json["msg"] = str(e)
         return web.Response(status=200, body=json.dumps(ret_json))
     key = post.get("key")
     mtype = data.get("mtype", "")
     if not mtype:
-        sys.stderr.write("ComfyUI-Studio Update config: model type is empty\n")
+        sys.stderr.write("SHADOW-ComfyUI-Studio Update config: model type is empty\n")
         ret_json["msg"] = "model type is empty"
         return web.Response(status=200, body=json.dumps(ret_json))
     # sys.stdout.write(f"Update Config: {data}\n")
@@ -393,7 +393,7 @@ async def fetch_config(request: web.Request):
     body = json.loads(body)
     mtype = body.get("mtype")
     if not mtype:
-        sys.stderr.write("ComfyUI-Studio Fetch config: model type is empty\n")
+        sys.stderr.write("SHADOW-ComfyUI-Studio Fetch config: model type is empty\n")
         sys.stderr.flush()
         return web.Response(status=200, body="{}")
     models = body.get("models")
@@ -479,7 +479,7 @@ async def refresh_model_list(request: web.Request):
     body = json.loads(body)
     mtype = body.get("mtype")
     if not mtype:
-        sys.stderr.write("ComfyUI-Studio Refresh model list: model type is empty\n")
+        sys.stderr.write("SHADOW-ComfyUI-Studio Refresh model list: model type is empty\n")
         sys.stderr.flush()
         return web.Response(status=200, body=json.dumps({"models": []}))
     
@@ -488,7 +488,7 @@ async def refresh_model_list(request: web.Request):
         model_list = folder_paths.get_filename_list(mtype)
         return web.Response(status=200, body=json.dumps({"models": model_list}))
     except Exception as e:
-        sys.stderr.write(f"ComfyUI-Studio Refresh model list error: {e}\n")
+        sys.stderr.write(f"SHADOW-ComfyUI-Studio Refresh model list error: {e}\n")
         sys.stderr.flush()
         return web.Response(status=200, body=json.dumps({"models": [], "error": str(e)}))
 
@@ -510,13 +510,13 @@ async def update_filter(request: web.Request):
         if not isinstance(data, list):
             raise Exception("data is not list")
     except Exception as e:
-        sys.stderr.write(f"ComfyUI-Studio Update filter: {e}\n")
+        sys.stderr.write(f"SHADOW-ComfyUI-Studio Update filter: {e}\n")
         sys.stderr.flush()
         return web.Response(status=200)
 
     loader = post.get("loader", "")
     if not loader:
-        sys.stderr.write("ComfyUI-Studio Update filter: loader type is empty\n")
+        sys.stderr.write("SHADOW-ComfyUI-Studio Update filter: loader type is empty\n")
         sys.stderr.flush()
         return web.Response(status=200)
     filters = CFG_MANAGER.get_filter(loader)
@@ -532,7 +532,7 @@ async def fetch_filter(request: web.Request):
     body = json.loads(body)
     loader = body.get("loader")
     if not loader:
-        sys.stderr.write("ComfyUI-Studio Fetch filter: loader type is empty\n")
+        sys.stderr.write("SHADOW-ComfyUI-Studio Fetch filter: loader type is empty\n")
         sys.stderr.flush()
         return web.Response(status=200, body="{}")
     fetch_all = body.get("fetch_all", False)
@@ -559,13 +559,13 @@ async def fetch_workflow(request: web.Request):
     wk_path = WK_PATH.joinpath(mtype, mname, workflow).with_suffix(".json")
     err_info = ""
     if not mtype:
-        err_info = "ComfyUI-Studio Fetch workflow: workflow type is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Fetch workflow: workflow type is empty\n"
     elif not mname:
-        err_info = "ComfyUI-Studio Fetch workflow: model name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Fetch workflow: model name is empty\n"
     elif not workflow:
-        err_info = "ComfyUI-Studio Fetch workflow: workflow name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Fetch workflow: workflow name is empty\n"
     elif not wk_path.exists() or not wk_path.is_file():
-        err_info = f"ComfyUI-Studio Fetch workflow: workflow [{wk_path.as_posix()}] not find\n"
+        err_info = f"SHADOW-ComfyUI-Studio Fetch workflow: workflow [{wk_path.as_posix()}] not find\n"
     if err_info:
         sys.stderr.write(err_info)
         sys.stderr.flush()
@@ -588,22 +588,22 @@ async def save_workflow(request: web.Request):
     err_info = ""
     ret_json = {"saved": False}
     if not mtype:
-        err_info = "ComfyUI-Studio Save workflow: workflow type is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Save workflow: workflow type is empty\n"
     elif not mname:
-        err_info = "ComfyUI-Studio Save workflow: model name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Save workflow: model name is empty\n"
     elif not wk_name:
-        err_info = "ComfyUI-Studio Save workflow: workflow name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Save workflow: workflow name is empty\n"
     elif not data:
-        err_info = "ComfyUI-Studio Save workflow: workflow data is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Save workflow: workflow data is empty\n"
     else:
         try:
             if not wk_path.parent.exists():
                 wk_path.parent.mkdir(parents=True)
             wk_path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
             ret_json["saved"] = True
-            sys.stdout.write(f"ComfyUI-Studio Save workflow: [{wk_name}] success\n")
+            sys.stdout.write(f"SHADOW-ComfyUI-Studio Save workflow: [{wk_name}] success\n")
         except Exception as e:
-            err_info = f"ComfyUI-Studio Save workflow: {e}\n"
+            err_info = f"SHADOW-ComfyUI-Studio Save workflow: {e}\n"
     if err_info:
         sys.stderr.write(err_info)
         sys.stderr.flush()
@@ -624,11 +624,11 @@ async def save_note(request: web.Request):
     err_info = ""
     ret_json = {"saved": False}
     if not mtype:
-        err_info = "ComfyUI-Studio Save note: note is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Save note: note is empty\n"
     elif not mname:
-        err_info = "ComfyUI-Studio Save note: model name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Save note: model name is empty\n"
     elif not note_name:
-        err_info = "ComfyUI-Studio Save note: note name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Save note: note name is empty\n"
     else:
         old_model_map = CFG_MANAGER.get_detail(mtype)
         mcfg = old_model_map.get(mname, {})
@@ -638,7 +638,7 @@ async def save_note(request: web.Request):
         mcfg["notes"] = notes
         CFG_MANAGER.dump_config()
         ret_json["saved"] = True
-        sys.stdout.write(f"ComfyUI-Studio Save note: [{note_name}] success\n")
+        sys.stdout.write(f"SHADOW-ComfyUI-Studio Save note: [{note_name}] success\n")
     if err_info:
         sys.stderr.write(err_info)
         sys.stderr.flush()
@@ -662,20 +662,20 @@ async def remove_workflow(request: web.Request):
     err_info = ""
     ret_json = {"removed": False}
     if not mtype:
-        err_info = "ComfyUI-Studio Remove workflow: workflow type is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Remove workflow: workflow type is empty\n"
     elif not mname:
-        err_info = "ComfyUI-Studio Remove workflow: model name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Remove workflow: model name is empty\n"
     elif not workflow:
-        err_info = "ComfyUI-Studio Remove workflow: workflow name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Remove workflow: workflow name is empty\n"
     elif not wk_path.exists() or not wk_path.is_file():
-        err_info = f"ComfyUI-Studio Remove workflow: workflow [{wk_path.as_posix()}] not find\n"
+        err_info = f"SHADOW-ComfyUI-Studio Remove workflow: workflow [{wk_path.as_posix()}] not find\n"
     else:
         try:
             wk_path.unlink()
             ret_json["removed"] = True
-            sys.stdout.write(f"ComfyUI-Studio Remove workflow: [{wk_name}] success\n")
+            sys.stdout.write(f"SHADOW-ComfyUI-Studio Remove workflow: [{wk_name}] success\n")
         except Exception as e:
-            err_info = f"ComfyUI-Studio Remove workflow: {e}\n"
+            err_info = f"SHADOW-ComfyUI-Studio Remove workflow: {e}\n"
     if err_info:
         sys.stderr.write(err_info)
         sys.stderr.flush()
@@ -698,23 +698,23 @@ async def remove_note(request: web.Request):
     err_info = ""
     ret_json = {"removed": False}
     if not mtype:
-        err_info = "ComfyUI-Studio Remove note: note is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Remove note: note is empty\n"
     elif not mname:
-        err_info = "ComfyUI-Studio Remove note: model name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Remove note: model name is empty\n"
     elif not note:
-        err_info = "ComfyUI-Studio Remove note: note name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Remove note: note name is empty\n"
     else:
         old_model_map = CFG_MANAGER.get_detail(mtype)
         mcfg = old_model_map.get(mname, {})
         notes = mcfg.get("notes", {})
         if note_name not in notes:
-            err_info = f"ComfyUI-Studio Remove note: note [{note_name}] not find\n"
+            err_info = f"SHADOW-ComfyUI-Studio Remove note: note [{note_name}] not find\n"
         else:
             notes.pop(note_name)
             CFG_MANAGER.dirty = True
             CFG_MANAGER.dump_config()
             ret_json["removed"] = True
-        sys.stdout.write(f"ComfyUI-Studio Remove note: [{note_name}] success\n")
+        sys.stdout.write(f"SHADOW-ComfyUI-Studio Remove note: [{note_name}] success\n")
     if err_info:
         sys.stderr.write(err_info)
         sys.stderr.flush()
@@ -733,18 +733,18 @@ async def delete_model(request: web.Request):
     err_info = ""
     ret_json = {"deleted": False, "msg": ""}
     if not mtype:
-        err_info = "ComfyUI-Studio Delete model: model type is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Delete model: model type is empty\n"
     elif not mname:
-        err_info = "ComfyUI-Studio Delete model: model name is empty\n"
+        err_info = "SHADOW-ComfyUI-Studio Delete model: model name is empty\n"
     else:
         try:
             model_path = ModelManager.find_model(mtype, mname)
             if not model_path.exists():
-                err_info = f"ComfyUI-Studio Delete model: model [{mname}] not found\n"
+                err_info = f"SHADOW-ComfyUI-Studio Delete model: model [{mname}] not found\n"
             else:
                 # 删除模型文件
                 model_path.unlink()
-                sys.stdout.write(f"ComfyUI-Studio Delete model: [{mname}] deleted\n")
+                sys.stdout.write(f"SHADOW-ComfyUI-Studio Delete model: [{mname}] deleted\n")
                 # 删除缩略图
                 try:
                     ModelManager.remove_thumbnails(mtype, mname)
@@ -768,7 +768,7 @@ async def delete_model(request: web.Request):
                     pass
                 ret_json["deleted"] = True
         except Exception as e:
-            err_info = f"ComfyUI-Studio Delete model: {e}\n"
+            err_info = f"SHADOW-ComfyUI-Studio Delete model: {e}\n"
             ret_json["msg"] = str(e)
     if err_info:
         sys.stderr.write(err_info)

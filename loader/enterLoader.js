@@ -173,7 +173,7 @@ function popUpReg() {
 }
 
 const ext = {
-  name: "AIGODLIKE.MMM",
+  name: "SHADOW.ComfyUIStudio",
   async init(app) {
     loadPage();
     styleInit();
