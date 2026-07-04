@@ -50,7 +50,6 @@ export default {
     this.column = this.$t("home.head.sizeList")[this.columnIndex].value;
     this.viewMode = localStorage.getItem("viewMode") || "grid";
     this.$i18n.locale = this.$store.state.config.language;
-    this.$store.commit("config/updateShortcut", this.$store.state.config.shortcut);
     this.$store.commit("config/updateWindowing", this.$store.state.config.windowing);
     this.isLoading = false;
   },

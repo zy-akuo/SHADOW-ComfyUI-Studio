@@ -21,7 +21,7 @@ cd ComfyUI/custom_nodes
 # Clone or copy the plugin folder here
 ```
 ## How to use it
-Find a loader, **left click** on model switch to pop up ComfyUI Studio Manager. If you still need to use the original model list, use **Shift+left** click on model switch to pop up the original model list
+Click the **Model Manager** button at the bottom of a loader node to open SHADOW ComfyUI Studio Manager. Click model fields (e.g. clip_name, ckpt_name) to use ComfyUI's native model list selection.
 ## List of supported loaders
 1 **Standard Node**: Automatically supports ComfyUI official nodes and standard named * custom node types, which will be automatically taken over when they need to access the models folder.
 
