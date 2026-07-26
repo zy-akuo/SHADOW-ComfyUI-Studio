@@ -178,6 +178,12 @@ const message = {
         useButtonText: "使用此模型",
         deleteButtonText: "删除模型",
         deleteConfirm: "删除模型将永久删除文件及其配置，是否确定？",
+        crop: {
+          tip: "拖动调整位置，滚轮缩放",
+          confirmText: "确定",
+          cancelText: "取消",
+          invalidImage: "请选择图片格式文件",
+        },
       },
     },
     settings: {
@@ -401,6 +407,12 @@ const message = {
         useButtonText: "Use model",
         deleteButtonText: "Delete model",
         deleteConfirm: "Deleting a model will permanently remove the file and its configuration. Are you sure?",
+        crop: {
+          tip: "Drag to reposition, scroll to zoom",
+          confirmText: "Confirm",
+          cancelText: "Cancel",
+          invalidImage: "Please select an image file",
+        },
       },
     },
     settings: {
@@ -625,6 +637,12 @@ const message = {
         useButtonText: "使用此模型",
         deleteButtonText: "刪除模型",
         deleteConfirm: "刪除模型將永久刪除文件及其配置，是否確定？",
+        crop: {
+          tip: "拖動調整位置，滾輪縮放",
+          confirmText: "確定",
+          cancelText: "取消",
+          invalidImage: "請選擇圖片格式文件",
+        },
       },
     },
     settings: {

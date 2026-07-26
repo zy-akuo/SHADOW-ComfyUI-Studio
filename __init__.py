@@ -198,6 +198,7 @@ class ModelManager:
         """
         移除同名的 .png, .jpg, .jpeg, .gif 缩略图
         """
+        removed = []
         model_names = [Path(mname).stem, Path(mname).name]
         for p in ModelManager.get_paths(mtype):
             for model_name in model_names:
@@ -206,9 +207,12 @@ class ModelManager:
                     img_path = Path(p).joinpath(img_name)
                     if not img_path.exists():
                         continue
-                    img_path.unlink()
-                    # sys.stderr.write(img_path.as_posix() + " REMOVE\n")
-                    # sys.stderr.flush()
+                    try:
+                        img_path.unlink()
+                        removed.append(img_path.as_posix())
+                    except Exception as e:
+                        sys.stderr.write(f"SHADOW-ComfyUI-Studio Remove thumbnail failed: {img_path} {e}\n")
+        return removed
 
     @staticmethod
     def find_model(mtype, model_name) -> Path:
@@ -262,6 +266,22 @@ class ThumbnailManager:
         path = cls.get_path(code)
         return cls.get_image(path)
 
+    @classmethod
+    def remove_path(cls, path: str):
+        if not path:
+            return
+        path = Path(path).as_posix()
+        code = cls._path_code_map.pop(path, None)
+        if code:
+            cls._code_map.pop(code, None)
+        cls._image_map.pop(path, None)
+        cls._image_time.pop(path, None)
+
+    @classmethod
+    def remove_paths(cls, paths):
+        for path in paths or []:
+            cls.remove_path(path)
+
 
 @server.PromptServer.instance.routes.post("/cs/upload_thumbnail")
 async def upload_thumbnail(request: web.Request):
@@ -287,18 +307,38 @@ async def upload_thumbnail(request: web.Request):
         # 模型不存在
         ret_json["msg"] = "Model not found"
         return web.Response(status=400, body=json.dumps(ret_json))
-    # 移除同名的 .png, .jpg, .jpeg, .gif 缩略图 ?
-    # ModelManager.remove_thumbnails(mtype, mname)
     # 保存缩略图到模型所在路径
     img_path = model_path.with_suffix(Path(img_name).suffix)
+    model_configs = CFG_MANAGER.get_detail(mtype)
+    old_cover = ""
+    if mname in model_configs:
+        old_cover = model_configs[mname].get("cover", "") or ""
+    # 写入前删除旧预览图（同名 sidecar + 配置中记录的 cover）
+    removed_paths = []
+    try:
+        removed_paths.extend(ModelManager.remove_thumbnails(mtype, mname) or [])
+    except Exception as e:
+        sys.stderr.write(f"SHADOW-ComfyUI-Studio Remove old thumbnails failed: {e}\n")
+    try:
+        if old_cover:
+            old_cover_path = Path(old_cover)
+            if old_cover_path.exists() and old_cover_path.resolve() != img_path.resolve():
+                old_cover_path.unlink()
+                removed_paths.append(old_cover_path.as_posix())
+            elif not old_cover_path.exists():
+                removed_paths.append(old_cover_path.as_posix())
+    except Exception as e:
+        sys.stderr.write(f"SHADOW-ComfyUI-Studio Remove old cover failed: {old_cover} {e}\n")
+    ThumbnailManager.remove_paths(removed_paths)
     with open(img_path, "wb") as f:
         f.write(image.file.read())
     # 保存缩略图路径到配置文件
-    model_configs = CFG_MANAGER.get_detail(mtype)
     if mname in model_configs:
         mcfg = model_configs[mname]
         mcfg["cover"] = img_path.as_posix()
         CFG_MANAGER.dump_config()
+    # 新文件写入后刷新该路径缓存
+    ThumbnailManager.remove_path(img_path.as_posix())
     ret_json["status"] = True
     return web.Response(status=200, body=json.dumps(ret_json))
 
